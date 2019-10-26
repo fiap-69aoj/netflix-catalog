@@ -12,5 +12,6 @@ public class MovieResponse implements Serializable {
     private static final long serialVersionUID = -7320023237867704075L;
 
     private final Long id;
+    private final String name;
 
 }
