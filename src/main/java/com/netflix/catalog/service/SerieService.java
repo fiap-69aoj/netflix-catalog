@@ -22,33 +22,20 @@ public class SerieService {
     private SerieConverter serieConverter;
 
     public SerieResponse save(final SerieRequest request) {
-        final SerieEntity serieEntity = serieConverter.serieToEntityConverter(request);
-
-        final SerieEntity serie = serieRepository.save(serieEntity);
-
-        return SerieResponse.builder()
-            .id(serie.getId())
-            .build();
+        final SerieEntity serie = serieRepository.save(serieConverter.toSerieEntity(request));
+        return serieConverter.toSerieResponse(serie);
     }
 
     public Page<SerieResponse> findAll(final Pageable pageable) {
         final Page<SerieEntity> series = serieRepository.findAll(pageable);
-
-        return series.map(s -> SerieResponse.builder()
-            .id(s.getId())
-            .name(s.getName())
-            .build()
-        );
+        return series.map(serie -> serieConverter.toSerieResponse(serie));
     }
 
     public SerieResponse findById(final Long id) {
         final SerieEntity serie = serieRepository.findById(id)
             .orElseThrow(() -> new CatalogException(HttpStatus.NOT_FOUND, "Serie not found"));
 
-        return SerieResponse.builder()
-            .id(serie.getId())
-            .name(serie.getName())
-            .build();
+        return serieConverter.toSerieResponse(serie);
     }
 
 }
