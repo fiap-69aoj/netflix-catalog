@@ -7,6 +7,7 @@ import lombok.ToString;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @Builder
 @Getter
@@ -28,5 +29,11 @@ public class SerieRequest implements Serializable {
 
     @NotNull
     private final Date releaseDate;
+
+    @NotNull
+    private final List<String> labels;
+
+    @NotNull
+    private final List<CategoryRequest> categories;
 
 }

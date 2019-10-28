@@ -29,7 +29,7 @@ public class MovieService {
     private CategoryRepository categoryRepository;
 
     public MovieResponse save(final MovieRequest request) {
-        MovieEntity movieEntity = movieConverter.toMovieEntity(request);
+        final MovieEntity movieEntity = movieConverter.toMovieEntity(request);
 
         verifyMovieName(request.getName());
         verifyCategories(movieEntity.getCategories());
