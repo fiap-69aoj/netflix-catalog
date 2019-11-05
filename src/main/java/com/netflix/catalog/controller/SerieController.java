@@ -1,5 +1,6 @@
 package com.netflix.catalog.controller;
 
+import com.netflix.catalog.dto.MovieResponse;
 import com.netflix.catalog.dto.SerieRequest;
 import com.netflix.catalog.dto.SerieResponse;
 import com.netflix.catalog.service.SerieService;
@@ -40,6 +41,11 @@ public class SerieController {
     public ResponseEntity<SerieResponse> findById(@PathVariable final Long id) {
         final SerieResponse response = serieService.findById(id);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/category/{idCategory}")
+    public Page<SerieResponse> findByCategory(@PathVariable final Long idCategory, Pageable pageable) {
+        return serieService.findByCategory(idCategory, pageable);
     }
 
 }
