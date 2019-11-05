@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/movies")
@@ -37,8 +38,13 @@ public class MovieController {
 
     @GetMapping("/{id}")
     public ResponseEntity<MovieResponse> findById(@PathVariable final Long id) {
-        final MovieResponse response = movieService.findById(id);
-        return ResponseEntity.ok(response);
+        final MovieResponse movie = movieService.findById(id);
+        return ResponseEntity.ok(movie);
+    }
+
+    @GetMapping("/category/{idCategory}")
+    public Page<MovieResponse> findByCategory(@PathVariable final Long idCategory, Pageable pageable) {
+        return movieService.findByCategory(idCategory, pageable);
     }
 
 }

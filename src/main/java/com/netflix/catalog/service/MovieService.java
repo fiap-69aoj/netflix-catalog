@@ -3,18 +3,19 @@ package com.netflix.catalog.service;
 import com.netflix.catalog.converter.MovieConverter;
 import com.netflix.catalog.dto.MovieRequest;
 import com.netflix.catalog.dto.MovieResponse;
-import com.netflix.catalog.entity.CategoryEntity;
 import com.netflix.catalog.entity.MovieEntity;
 import com.netflix.catalog.exception.CatalogException;
-import com.netflix.catalog.repository.CategoryRepository;
 import com.netflix.catalog.repository.MovieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class MovieService {
@@ -26,13 +27,21 @@ public class MovieService {
     private MovieConverter movieConverter;
 
     @Autowired
-    private CategoryRepository categoryRepository;
+    private CategoryService categoryService;
+
+    private void verifyMovieName(final String name) {
+        movieRepository.findByName(name)
+            .ifPresent(movie -> {
+                final String message = "Movie %s already exists";
+                throw new CatalogException(HttpStatus.NOT_FOUND, String.format(message, name));
+            });
+    }
 
     public MovieResponse save(final MovieRequest request) {
         final MovieEntity movieEntity = movieConverter.toMovieEntity(request);
 
         verifyMovieName(request.getName());
-        verifyCategories(movieEntity.getCategories());
+        categoryService.verifyCategoriesExists(movieEntity.getCategories());
 
         final MovieEntity movie = movieRepository.save(movieEntity);
         return movieConverter.toMovieResponse(movie);
@@ -50,22 +59,13 @@ public class MovieService {
         return movieConverter.toMovieResponse(movie);
     }
 
-    private void verifyMovieName(final String name) {
-        movieRepository.findByName(name)
-            .ifPresent(movie -> {
-                final String message = "Movie %s already exists";
-                throw new CatalogException(HttpStatus.NOT_FOUND, String.format(message, name));
-            });
-    }
+    public Page<MovieResponse> findByCategory(final Long idCategory, final Pageable pageable) {
+        final List<MovieEntity> moviesEntity = movieRepository.findByCategoriesId(idCategory, pageable);
 
-    private void verifyCategories(final List<CategoryEntity> categories) {
-        categories.stream()
-            .filter(category -> !categoryRepository.existsById(category.getId()))
-            .findAny()
-            .ifPresent(category -> {
-                final String message = "Category %d not found";
-                throw new CatalogException(HttpStatus.NOT_FOUND, String.format(message, category.getId()));
-            });
+        List<MovieResponse> movies = moviesEntity.stream().map(movie -> movieConverter.toMovieResponse(movie))
+            .collect(Collectors.toList());
+
+        return new PageImpl<>(movies);
     }
 
 }
