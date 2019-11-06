@@ -8,14 +8,18 @@ import com.netflix.catalog.exception.CatalogException;
 import com.netflix.catalog.repository.MovieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import static java.util.Comparator.comparingLong;
+import static java.util.stream.Collectors.collectingAndThen;
 
 @Service
 public class MovieService {
@@ -35,6 +39,13 @@ public class MovieService {
                 final String message = "Movie %s already exists";
                 throw new CatalogException(HttpStatus.NOT_FOUND, String.format(message, name));
             });
+    }
+
+    private List<MovieResponse> findByLabelsLabelContaining(final String label) {
+        final List<MovieEntity> moviesEntity = movieRepository.findByLabelsLabelContaining(label);
+
+        return moviesEntity.stream().map(movieConverter::toMovieResponse)
+            .collect(Collectors.toList());
     }
 
     public MovieResponse save(final MovieRequest request) {
@@ -59,13 +70,23 @@ public class MovieService {
         return movieConverter.toMovieResponse(movie);
     }
 
-    public Page<MovieResponse> findByCategory(final Long idCategory, final Pageable pageable) {
-        final List<MovieEntity> moviesEntity = movieRepository.findByCategoriesId(idCategory, pageable);
+    public List<MovieResponse> findByCategory(final Long idCategory) {
+        final List<MovieEntity> moviesEntity = movieRepository.findByCategoriesId(idCategory);
 
-        List<MovieResponse> movies = moviesEntity.stream().map(movie -> movieConverter.toMovieResponse(movie))
+        return moviesEntity.stream().map(movie -> movieConverter.toMovieResponse(movie))
             .collect(Collectors.toList());
+    }
 
-        return new PageImpl<>(movies);
+    public List<MovieResponse> findByLabel(final String query) {
+        String[] queries = query.split(" ");
+        List<MovieResponse> movieResponses = new ArrayList<>();
+
+        Arrays.stream(queries)
+            .forEach(label -> movieResponses.addAll(findByLabelsLabelContaining(label)));
+
+        return movieResponses.stream()
+            .collect(collectingAndThen(
+                Collectors.toCollection(() -> new TreeSet<>(comparingLong(MovieResponse::getId))), ArrayList::new));
     }
 
 }

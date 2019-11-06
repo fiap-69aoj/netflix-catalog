@@ -1,6 +1,5 @@
 package com.netflix.catalog.controller;
 
-import com.netflix.catalog.dto.MovieResponse;
 import com.netflix.catalog.dto.SerieRequest;
 import com.netflix.catalog.dto.SerieResponse;
 import com.netflix.catalog.service.SerieService;
@@ -13,11 +12,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import javax.xml.ws.Response;
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/series")
@@ -44,8 +44,13 @@ public class SerieController {
     }
 
     @GetMapping("/category/{idCategory}")
-    public Page<SerieResponse> findByCategory(@PathVariable final Long idCategory, Pageable pageable) {
-        return serieService.findByCategory(idCategory, pageable);
+    public List<SerieResponse> findByCategory(@PathVariable final Long idCategory) {
+        return serieService.findByCategory(idCategory);
+    }
+
+    @GetMapping("/search")
+    public List<SerieResponse> findByLabel(@RequestParam(value = "q") String query) {
+        return serieService.findByLabel(query);
     }
 
 }
