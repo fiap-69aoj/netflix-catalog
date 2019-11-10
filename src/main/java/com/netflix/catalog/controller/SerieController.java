@@ -49,7 +49,7 @@ public class SerieController {
     }
 
     @GetMapping("/search")
-    public List<SerieResponse> findByLabel(@RequestParam(value = "q") String query) {
+    public List<SerieResponse> findByLabel(@RequestParam(value = "q") final String query) {
         return serieService.findByLabel(query);
     }
 

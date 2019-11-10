@@ -2,7 +2,8 @@ package com.netflix.catalog.controller;
 
 import com.netflix.catalog.dto.MovieRequest;
 import com.netflix.catalog.dto.MovieResponse;
-import com.netflix.catalog.entity.MovieEntity;
+import com.netflix.catalog.dto.MovieWatchedRequest;
+import com.netflix.catalog.dto.MovieWatchedResponse;
 import com.netflix.catalog.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,8 +30,8 @@ public class MovieController {
 
     @PostMapping
     public ResponseEntity<MovieResponse> save(@Valid @RequestBody final MovieRequest request) {
-        final MovieResponse response = movieService.save(request);
-        return ResponseEntity.created(URI.create("/movies/" + response.getId())).build();
+        final MovieResponse movie = movieService.save(request);
+        return ResponseEntity.created(URI.create("/movies/" + movie.getId())).build();
     }
 
     @GetMapping
@@ -50,8 +51,20 @@ public class MovieController {
     }
 
     @GetMapping("/search")
-    public List<MovieResponse> findByLabel(@RequestParam(value = "q") String query) {
+    public List<MovieResponse> findByLabel(@RequestParam(value = "q") final String query) {
         return movieService.findByLabel(query);
+    }
+
+    @PostMapping("/watch")
+    public ResponseEntity<MovieWatchedResponse> watch(@Valid @RequestBody final MovieWatchedRequest request) {
+        // todo retornar lista de filmes assistidos
+        final MovieWatchedResponse movieWatched = movieService.watch(request);
+        return ResponseEntity.ok(movieWatched);
+    }
+
+    @GetMapping("/user/{idUser}/watched")
+    public MovieWatchedResponse watched(@PathVariable final Long idUser) {
+        return movieService.watched(idUser);
     }
 
 }

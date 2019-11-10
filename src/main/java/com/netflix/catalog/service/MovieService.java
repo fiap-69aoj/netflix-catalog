@@ -3,9 +3,14 @@ package com.netflix.catalog.service;
 import com.netflix.catalog.converter.MovieConverter;
 import com.netflix.catalog.dto.MovieRequest;
 import com.netflix.catalog.dto.MovieResponse;
+import com.netflix.catalog.dto.MovieWatchResponse;
+import com.netflix.catalog.dto.MovieWatchedRequest;
+import com.netflix.catalog.dto.MovieWatchedResponse;
 import com.netflix.catalog.entity.MovieEntity;
+import com.netflix.catalog.entity.MovieWatchedEntity;
 import com.netflix.catalog.exception.CatalogException;
 import com.netflix.catalog.repository.MovieRepository;
+import com.netflix.catalog.repository.MovieWatchedRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,10 +19,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparingLong;
 import static java.util.stream.Collectors.collectingAndThen;
 
@@ -33,6 +40,9 @@ public class MovieService {
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private MovieWatchedRepository movieWatchedRepository;
+
     private void verifyMovieName(final String name) {
         movieRepository.findByName(name)
             .ifPresent(movie -> {
@@ -42,10 +52,15 @@ public class MovieService {
     }
 
     private List<MovieResponse> findByLabelsLabelContaining(final String label) {
-        final List<MovieEntity> moviesEntity = movieRepository.findByLabelsLabelContaining(label);
+        final List<MovieEntity> movieEntities = movieRepository.findByLabelsLabelContaining(label);
 
-        return moviesEntity.stream().map(movieConverter::toMovieResponse)
+        return movieEntities.stream().map(movieConverter::toMovieResponse)
             .collect(Collectors.toList());
+    }
+
+    private MovieEntity findMovieById(final Long idMovie) {
+        return movieRepository.findById(idMovie)
+            .orElseThrow(() -> new CatalogException(HttpStatus.NOT_FOUND, "Movie not found"));
     }
 
     public MovieResponse save(final MovieRequest request) {
@@ -63,30 +78,47 @@ public class MovieService {
         return movies.map(movie -> movieConverter.toMovieResponse(movie));
     }
 
-    public MovieResponse findById(final Long id) {
-        final MovieEntity movie = movieRepository.findById(id)
-            .orElseThrow(() -> new CatalogException(HttpStatus.NOT_FOUND, "Movie not found"));
-
-        return movieConverter.toMovieResponse(movie);
+    public MovieResponse findById(final Long idMovie) {
+        return movieConverter.toMovieResponse(findMovieById(idMovie));
     }
 
     public List<MovieResponse> findByCategory(final Long idCategory) {
-        final List<MovieEntity> moviesEntity = movieRepository.findByCategoriesId(idCategory);
+        final List<MovieEntity> movieEntities = movieRepository.findByCategoriesId(idCategory);
 
-        return moviesEntity.stream().map(movie -> movieConverter.toMovieResponse(movie))
+        return movieEntities.stream().map(movieConverter::toMovieResponse)
             .collect(Collectors.toList());
     }
 
     public List<MovieResponse> findByLabel(final String query) {
-        String[] queries = query.split(" ");
-        List<MovieResponse> movieResponses = new ArrayList<>();
+        final String[] queries = query.split(" ");
+        final List<MovieResponse> movies = new ArrayList<>();
 
         Arrays.stream(queries)
-            .forEach(label -> movieResponses.addAll(findByLabelsLabelContaining(label)));
+            .forEach(label -> movies.addAll(findByLabelsLabelContaining(label)));
 
-        return movieResponses.stream()
+        return movies.stream()
             .collect(collectingAndThen(
                 Collectors.toCollection(() -> new TreeSet<>(comparingLong(MovieResponse::getId))), ArrayList::new));
+    }
+
+    public MovieWatchedResponse watch(final MovieWatchedRequest request) {
+        final MovieWatchedEntity movieWatchedEntity = movieConverter.toMovieWatchedEntity(request);
+        final MovieResponse movie = findById(movieWatchedEntity.getId().getMovie().getId());
+        final MovieWatchedEntity movieWatched = movieWatchedRepository.save(movieWatchedEntity);
+
+        return MovieWatchedResponse.builder()
+            .idUser(request.getIdUser())
+            .movies(singletonList(
+                MovieWatchResponse.builder()
+                    .movie(movie)
+                    .date(movieWatched.getDate())
+                    .build()))
+            .build();
+    }
+
+    public MovieWatchedResponse watched(final Long idUser) {
+        List<MovieWatchedEntity> movieWatchedEntities = movieWatchedRepository.findByIdIdUser(idUser);
+        return movieConverter.toMovieWatchedResponse(movieWatchedEntities);
     }
 
 }

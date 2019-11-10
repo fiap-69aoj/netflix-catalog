@@ -3,7 +3,6 @@ package com.netflix.catalog.converter;
 import com.netflix.catalog.dto.SerieRequest;
 import com.netflix.catalog.dto.SerieResponse;
 import com.netflix.catalog.entity.CategoryEntity;
-import com.netflix.catalog.entity.MovieLabelEntity;
 import com.netflix.catalog.entity.SerieEntity;
 import com.netflix.catalog.entity.SerieLabelEntity;
 import com.netflix.catalog.util.RatingUtil;
@@ -47,12 +46,12 @@ public class SerieConverter {
             .name(entity.getName())
             .labels(
                 entity.getLabels().stream()
-                    .map(l -> l.getLabel())
+                    .map(SerieLabelEntity::getLabel)
                     .collect(Collectors.toList())
             )
             .categories(
                 entity.getCategories().stream()
-                    .map(c -> c.getDescription())
+                    .map(CategoryEntity::getDescription)
                     .collect(Collectors.toList())
             )
             .build();

@@ -42,9 +42,9 @@ public class SerieService {
     }
 
     private List<SerieResponse> findByLabelsLabelContaining(final String label) {
-        final List<SerieEntity> moviesEntity = serieRepository.findByLabelsLabelContaining(label);
+        final List<SerieEntity> seriesEntity = serieRepository.findByLabelsLabelContaining(label);
 
-        return moviesEntity.stream().map(serieConverter::toSerieResponse)
+        return seriesEntity.stream().map(serieConverter::toSerieResponse)
             .collect(Collectors.toList());
     }
 

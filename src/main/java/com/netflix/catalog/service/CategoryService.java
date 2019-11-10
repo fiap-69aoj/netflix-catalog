@@ -24,4 +24,12 @@ public class CategoryService {
                 throw new CatalogException(HttpStatus.NOT_FOUND, String.format(message, category.getId()));
             });
     }
+
+    public void verifyCategory(final CategoryEntity category) {
+        if (!categoryRepository.existsById(category.getId())) {
+            final String message = "Category %d not found";
+            throw new CatalogException(HttpStatus.NOT_FOUND, String.format(message, category.getId()));
+        }
+    }
+
 }

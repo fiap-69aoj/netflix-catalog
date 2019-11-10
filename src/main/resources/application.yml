@@ -1,13 +1,12 @@
 spring:
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url:
-    username:
-    password:
+    url: jdbc:mysql://fiapnetflix.c86nbpf4k73h.sa-east-1.rds.amazonaws.com/netflix-catalog
+    username: admin
+    password: iXHggP96c3dqjJ2k
   jpa:
     show-sql: true
     hibernate.format_sql: true
-
 eureka:
   instance:
     preferIpAddress: true
@@ -16,4 +15,3 @@ eureka:
     fetchRegistry: true
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
-
