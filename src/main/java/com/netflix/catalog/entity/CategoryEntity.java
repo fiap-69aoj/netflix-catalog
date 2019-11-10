@@ -25,6 +25,6 @@ public class CategoryEntity {
     private Long id;
 
     @NotNull
-    private String description;
+    private String name;
 
 }

@@ -59,7 +59,7 @@ public class MovieConverter {
             )
             .categories(
                 entity.getCategories().stream()
-                    .map(CategoryEntity::getDescription)
+                    .map(CategoryEntity::getName)
                     .collect(Collectors.toList())
             )
             .build();

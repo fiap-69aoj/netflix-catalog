@@ -4,6 +4,7 @@ import com.netflix.catalog.converter.MovieConverter;
 import com.netflix.catalog.dto.MovieRequest;
 import com.netflix.catalog.dto.MovieResponse;
 import com.netflix.catalog.dto.MovieWatchResponse;
+import com.netflix.catalog.dto.MovieWatchedByCategoryResponse;
 import com.netflix.catalog.dto.MovieWatchedRequest;
 import com.netflix.catalog.dto.MovieWatchedResponse;
 import com.netflix.catalog.entity.MovieEntity;
@@ -119,6 +120,10 @@ public class MovieService {
     public MovieWatchedResponse watched(final Long idUser) {
         List<MovieWatchedEntity> movieWatchedEntities = movieWatchedRepository.findByIdIdUser(idUser);
         return movieConverter.toMovieWatchedResponse(movieWatchedEntities);
+    }
+
+    public List<MovieWatchedByCategoryResponse> topMovieWatchedByCategory() {
+        return movieRepository.topMovieWatchedByCategory();
     }
 
 }

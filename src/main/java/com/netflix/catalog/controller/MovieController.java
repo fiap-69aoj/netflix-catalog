@@ -2,6 +2,7 @@ package com.netflix.catalog.controller;
 
 import com.netflix.catalog.dto.MovieRequest;
 import com.netflix.catalog.dto.MovieResponse;
+import com.netflix.catalog.dto.MovieWatchedByCategoryResponse;
 import com.netflix.catalog.dto.MovieWatchedRequest;
 import com.netflix.catalog.dto.MovieWatchedResponse;
 import com.netflix.catalog.service.MovieService;
@@ -65,6 +66,11 @@ public class MovieController {
     @GetMapping("/user/{idUser}/watched")
     public MovieWatchedResponse watched(@PathVariable final Long idUser) {
         return movieService.watched(idUser);
+    }
+
+    @GetMapping("/top/category")
+    public List<MovieWatchedByCategoryResponse> topMovieWatchedByCategory() {
+        return movieService.topMovieWatchedByCategory();
     }
 
 }
