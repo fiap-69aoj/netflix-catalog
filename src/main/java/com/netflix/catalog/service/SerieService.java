@@ -3,9 +3,15 @@ package com.netflix.catalog.service;
 import com.netflix.catalog.converter.SerieConverter;
 import com.netflix.catalog.dto.SerieRequest;
 import com.netflix.catalog.dto.SerieResponse;
+import com.netflix.catalog.dto.SerieWatchResponse;
+import com.netflix.catalog.dto.SerieWatchedByCategoryResponse;
+import com.netflix.catalog.dto.SerieWatchedRequest;
+import com.netflix.catalog.dto.SerieWatchedResponse;
 import com.netflix.catalog.entity.SerieEntity;
+import com.netflix.catalog.entity.SerieWatchedEntity;
 import com.netflix.catalog.exception.CatalogException;
 import com.netflix.catalog.repository.SerieRepository;
+import com.netflix.catalog.repository.SerieWatchedRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +24,7 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparingLong;
 import static java.util.stream.Collectors.collectingAndThen;
 
@@ -32,6 +39,9 @@ public class SerieService {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private SerieWatchedRepository serieWatchedRepository;
 
     private void verifySerieName(final String name) {
         serieRepository.findByName(name)
@@ -87,6 +97,30 @@ public class SerieService {
         return serieResponses.stream()
             .collect(collectingAndThen(
                 Collectors.toCollection(() -> new TreeSet<>(comparingLong(SerieResponse::getId))), ArrayList::new));
+    }
+
+    public SerieWatchedResponse watch(final SerieWatchedRequest request) {
+        final SerieWatchedEntity serieWatchedEntity = serieConverter.toSerieWatchedEntity(request);
+        final SerieResponse serie = findById(serieWatchedEntity.getId().getSerie().getId());
+        final SerieWatchedEntity serieWatched = serieWatchedRepository.save(serieWatchedEntity);
+
+        return SerieWatchedResponse.builder()
+            .idUser(request.getIdUser())
+            .series(singletonList(
+                SerieWatchResponse.builder()
+                    .serie(serie)
+                    .date(serieWatched.getDate())
+                    .build()))
+            .build();
+    }
+
+    public SerieWatchedResponse watched(final Long idUser) {
+        List<SerieWatchedEntity> serieWatchedEntities = serieWatchedRepository.findByIdIdUser(idUser);
+        return serieConverter.toSerieWatchedResponse(serieWatchedEntities);
+    }
+
+    public List<SerieWatchedByCategoryResponse> topSerieWatchedByCategory() {
+        return serieRepository.topSerieWatchedByCategory();
     }
 
 }

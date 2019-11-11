@@ -2,6 +2,9 @@ package com.netflix.catalog.controller;
 
 import com.netflix.catalog.dto.SerieRequest;
 import com.netflix.catalog.dto.SerieResponse;
+import com.netflix.catalog.dto.SerieWatchedByCategoryResponse;
+import com.netflix.catalog.dto.SerieWatchedRequest;
+import com.netflix.catalog.dto.SerieWatchedResponse;
 import com.netflix.catalog.service.SerieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -51,6 +54,23 @@ public class SerieController {
     @GetMapping("/search")
     public List<SerieResponse> findByLabel(@RequestParam(value = "q") final String query) {
         return serieService.findByLabel(query);
+    }
+
+    @PostMapping("/watch")
+    public ResponseEntity<SerieWatchedResponse> watch(@Valid @RequestBody final SerieWatchedRequest request) {
+        // todo retornar lista de series assistidas
+        final SerieWatchedResponse serieWatched = serieService.watch(request);
+        return ResponseEntity.ok(serieWatched);
+    }
+
+    @GetMapping("/user/{idUser}/watched")
+    public SerieWatchedResponse watched(@PathVariable final Long idUser) {
+        return serieService.watched(idUser);
+    }
+
+    @GetMapping("/top/category")
+    public List<SerieWatchedByCategoryResponse> topSerieWatchedByCategory() {
+        return serieService.topSerieWatchedByCategory();
     }
 
 }
