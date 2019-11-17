@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://netflix-mysql:3306/netflix-catalog
+    username: root
+    password: root
+  jpa:
+    show-sql: true
+    hibernate.format_sql: true
+  zipkin:
+    baseUrl: http://netflix-zipkin:9411/
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://netflix-discovery-server:8761/eureka/
