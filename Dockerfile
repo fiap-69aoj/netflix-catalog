@@ -4,7 +4,10 @@ LABEL source="https://github.com/fiap-69aoj/netflix-catalog" \
       maintainer="ewertondsdias@gmail.com"
 
 ADD ./target/catalog-0.0.1-SNAPSHOT.jar catalog.jar
+ADD ./docker-entrypoint.sh /
+
+RUN chmod +x /docker-entrypoint.sh
 
 EXPOSE 8761
 
-ENTRYPOINT ["java","-jar", "-Dspring.profiles.active=prod", "/catalog.jar"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
