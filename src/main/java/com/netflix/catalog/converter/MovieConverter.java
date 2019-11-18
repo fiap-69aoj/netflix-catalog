@@ -6,6 +6,7 @@ import com.netflix.catalog.dto.MovieWatchResponse;
 import com.netflix.catalog.dto.MovieWatchedRequest;
 import com.netflix.catalog.dto.MovieWatchedResponse;
 import com.netflix.catalog.entity.CategoryEntity;
+import com.netflix.catalog.entity.FavoriteEntity;
 import com.netflix.catalog.entity.MovieEntity;
 import com.netflix.catalog.entity.MovieLabelEntity;
 import com.netflix.catalog.entity.MovieWatchedEntity;
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;

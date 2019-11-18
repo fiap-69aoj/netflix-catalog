@@ -1,15 +1,19 @@
 package com.netflix.catalog.service;
 
+import com.netflix.catalog.converter.FavoriteConverter;
 import com.netflix.catalog.converter.MovieConverter;
+import com.netflix.catalog.dto.MovieFavoriteRequest;
 import com.netflix.catalog.dto.MovieRequest;
 import com.netflix.catalog.dto.MovieResponse;
 import com.netflix.catalog.dto.MovieWatchResponse;
 import com.netflix.catalog.dto.MovieWatchedByCategoryResponse;
 import com.netflix.catalog.dto.MovieWatchedRequest;
 import com.netflix.catalog.dto.MovieWatchedResponse;
+import com.netflix.catalog.entity.FavoriteEntity;
 import com.netflix.catalog.entity.MovieEntity;
 import com.netflix.catalog.entity.MovieWatchedEntity;
 import com.netflix.catalog.exception.CatalogException;
+import com.netflix.catalog.repository.FavoriteRepository;
 import com.netflix.catalog.repository.MovieRepository;
 import com.netflix.catalog.repository.MovieWatchedRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -43,6 +46,12 @@ public class MovieService {
 
     @Autowired
     private MovieWatchedRepository movieWatchedRepository;
+
+    @Autowired
+    private FavoriteRepository favoriteRepository;
+
+    @Autowired
+    private FavoriteConverter favoriteConverter;
 
     private void verifyMovieName(final String name) {
         movieRepository.findByName(name)
@@ -118,12 +127,18 @@ public class MovieService {
     }
 
     public MovieWatchedResponse watched(final Long idUser) {
-        List<MovieWatchedEntity> movieWatchedEntities = movieWatchedRepository.findByIdIdUser(idUser);
+        final List<MovieWatchedEntity> movieWatchedEntities = movieWatchedRepository.findByIdIdUser(idUser);
         return movieConverter.toMovieWatchedResponse(movieWatchedEntities);
     }
 
     public List<MovieWatchedByCategoryResponse> topMovieWatchedByCategory() {
         return movieRepository.topMovieWatchedByCategory();
+    }
+
+    public void sendToFavorites(final MovieFavoriteRequest movieFavoriteRequest) {
+        final FavoriteEntity favoriteEntity = favoriteConverter.toFavoriteEntity(movieFavoriteRequest);
+        findById(favoriteEntity.getIdMovie());
+        favoriteRepository.save(favoriteEntity);
     }
 
 }

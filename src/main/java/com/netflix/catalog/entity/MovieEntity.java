@@ -51,7 +51,7 @@ public class MovieEntity {
     @JoinColumn(name = "id_movie", nullable = false)
     private List<MovieLabelEntity> labels;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
         name = "movie_category",
         joinColumns = @JoinColumn(name = "id_movie"),

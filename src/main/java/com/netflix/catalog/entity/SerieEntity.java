@@ -50,7 +50,7 @@ public class SerieEntity {
     @JoinColumn(name = "id_serie", nullable = false)
     private List<SerieLabelEntity> labels;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
         name = "serie_category",
         joinColumns = @JoinColumn(name = "id_serie"),

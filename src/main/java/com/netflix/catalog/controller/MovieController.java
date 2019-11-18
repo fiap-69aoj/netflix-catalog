@@ -1,10 +1,12 @@
 package com.netflix.catalog.controller;
 
+import com.netflix.catalog.dto.MovieFavoriteRequest;
 import com.netflix.catalog.dto.MovieRequest;
 import com.netflix.catalog.dto.MovieResponse;
 import com.netflix.catalog.dto.MovieWatchedByCategoryResponse;
 import com.netflix.catalog.dto.MovieWatchedRequest;
 import com.netflix.catalog.dto.MovieWatchedResponse;
+import com.netflix.catalog.entity.MovieEntity;
 import com.netflix.catalog.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -58,9 +60,8 @@ public class MovieController {
 
     @PostMapping("/watch")
     public ResponseEntity<MovieWatchedResponse> watch(@Valid @RequestBody final MovieWatchedRequest request) {
-        // todo retornar lista de filmes assistidos
         final MovieWatchedResponse movieWatched = movieService.watch(request);
-        return ResponseEntity.ok(movieWatched);
+        return ResponseEntity.created(URI.create("/user/" + movieWatched.getIdUser() + "/watched")).build();
     }
 
     @GetMapping("/user/{idUser}/watched")
@@ -71,6 +72,17 @@ public class MovieController {
     @GetMapping("/top/category")
     public List<MovieWatchedByCategoryResponse> topMovieWatchedByCategory() {
         return movieService.topMovieWatchedByCategory();
+    }
+
+    @PostMapping("/favorites")
+    public ResponseEntity sendToFavorites(@Valid @RequestBody final MovieFavoriteRequest movieFavoriteRequest) {
+        movieService.sendToFavorites(movieFavoriteRequest);
+        return ResponseEntity.created(URI.create("/favorites")).build();
+    }
+
+    @GetMapping("/favorites")
+    public ResponseEntity<List<MovieResponse>> favorites() {
+        return null;
     }
 
 }

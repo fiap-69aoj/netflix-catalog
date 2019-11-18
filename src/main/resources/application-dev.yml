@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/netflix-catalog
+    username: netflix
+    password: netflix
+  jpa:
+    show-sql: true
+    hibernate.format_sql: true
