@@ -3,7 +3,7 @@ spring:
     name: netflix-catalog
   profiles:
     active:
-      default
+      dev
   cloud:
     config:
       enabled: true
