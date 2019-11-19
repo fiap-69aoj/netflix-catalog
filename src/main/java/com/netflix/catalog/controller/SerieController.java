@@ -1,5 +1,6 @@
 package com.netflix.catalog.controller;
 
+import com.netflix.catalog.dto.SerieFavoriteRequest;
 import com.netflix.catalog.dto.SerieRequest;
 import com.netflix.catalog.dto.SerieResponse;
 import com.netflix.catalog.dto.SerieWatchedByCategoryResponse;
@@ -58,9 +59,8 @@ public class SerieController {
 
     @PostMapping("/watch")
     public ResponseEntity<SerieWatchedResponse> watch(@Valid @RequestBody final SerieWatchedRequest request) {
-        // todo retornar lista de series assistidas
         final SerieWatchedResponse serieWatched = serieService.watch(request);
-        return ResponseEntity.ok(serieWatched);
+        return ResponseEntity.created(URI.create("/user/" + serieWatched.getIdUser() + "/watched")).build();
     }
 
     @GetMapping("/user/{idUser}/watched")
@@ -71,6 +71,17 @@ public class SerieController {
     @GetMapping("/top/category")
     public List<SerieWatchedByCategoryResponse> topSerieWatchedByCategory() {
         return serieService.topSerieWatchedByCategory();
+    }
+
+    @PostMapping("/favorites")
+    public ResponseEntity sendToFavorites(@Valid @RequestBody final SerieFavoriteRequest serieFavoriteRequest) {
+        serieService.sendToFavorites(serieFavoriteRequest);
+        return ResponseEntity.created(URI.create("/favorites")).build();
+    }
+
+    @GetMapping("/user/{idUser}/favorites")
+    public ResponseEntity<List<SerieResponse>> favorites(@PathVariable final Long idUser) {
+        return ResponseEntity.ok(serieService.favorites(idUser));
     }
 
 }

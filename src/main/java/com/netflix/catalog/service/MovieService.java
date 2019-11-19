@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -136,9 +137,19 @@ public class MovieService {
     }
 
     public void sendToFavorites(final MovieFavoriteRequest movieFavoriteRequest) {
-        final FavoriteEntity favoriteEntity = favoriteConverter.toFavoriteEntity(movieFavoriteRequest);
+        final FavoriteEntity favoriteEntity = favoriteConverter.movieToFavoriteEntity(movieFavoriteRequest);
         findById(favoriteEntity.getIdMovie());
         favoriteRepository.save(favoriteEntity);
+    }
+
+    public List<MovieResponse> favorites(final Long idUser) {
+        final Optional<List<FavoriteEntity>> favorites = favoriteRepository.findByIdUser(idUser);
+
+        return favorites.orElse(new ArrayList<>())
+            .stream()
+            .filter(favorite -> favorite.getIdMovie() != null)
+            .map(favorite -> findById(favorite.getIdMovie()))
+            .collect(Collectors.toList());
     }
 
 }

@@ -6,7 +6,6 @@ import com.netflix.catalog.dto.MovieResponse;
 import com.netflix.catalog.dto.MovieWatchedByCategoryResponse;
 import com.netflix.catalog.dto.MovieWatchedRequest;
 import com.netflix.catalog.dto.MovieWatchedResponse;
-import com.netflix.catalog.entity.MovieEntity;
 import com.netflix.catalog.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -80,9 +79,9 @@ public class MovieController {
         return ResponseEntity.created(URI.create("/favorites")).build();
     }
 
-    @GetMapping("/favorites")
-    public ResponseEntity<List<MovieResponse>> favorites() {
-        return null;
+    @GetMapping("/user/{idUser}/favorites")
+    public ResponseEntity<List<MovieResponse>> favorites(@PathVariable final Long idUser) {
+        return ResponseEntity.ok(movieService.favorites(idUser));
     }
 
 }

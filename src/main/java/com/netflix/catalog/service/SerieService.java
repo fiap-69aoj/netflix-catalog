@@ -1,15 +1,19 @@
 package com.netflix.catalog.service;
 
+import com.netflix.catalog.converter.FavoriteConverter;
 import com.netflix.catalog.converter.SerieConverter;
+import com.netflix.catalog.dto.SerieFavoriteRequest;
 import com.netflix.catalog.dto.SerieRequest;
 import com.netflix.catalog.dto.SerieResponse;
 import com.netflix.catalog.dto.SerieWatchResponse;
 import com.netflix.catalog.dto.SerieWatchedByCategoryResponse;
 import com.netflix.catalog.dto.SerieWatchedRequest;
 import com.netflix.catalog.dto.SerieWatchedResponse;
+import com.netflix.catalog.entity.FavoriteEntity;
 import com.netflix.catalog.entity.SerieEntity;
 import com.netflix.catalog.entity.SerieWatchedEntity;
 import com.netflix.catalog.exception.CatalogException;
+import com.netflix.catalog.repository.FavoriteRepository;
 import com.netflix.catalog.repository.SerieRepository;
 import com.netflix.catalog.repository.SerieWatchedRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -42,6 +47,12 @@ public class SerieService {
 
     @Autowired
     private SerieWatchedRepository serieWatchedRepository;
+
+    @Autowired
+    private FavoriteRepository favoriteRepository;
+
+    @Autowired
+    private FavoriteConverter favoriteConverter;
 
     private void verifySerieName(final String name) {
         serieRepository.findByName(name)
@@ -121,6 +132,22 @@ public class SerieService {
 
     public List<SerieWatchedByCategoryResponse> topSerieWatchedByCategory() {
         return serieRepository.topSerieWatchedByCategory();
+    }
+
+    public void sendToFavorites(final SerieFavoriteRequest serieFavoriteRequest) {
+        final FavoriteEntity favoriteEntity = favoriteConverter.serieToFavoriteEntity(serieFavoriteRequest);
+        findById(favoriteEntity.getIdSerie());
+        favoriteRepository.save(favoriteEntity);
+    }
+
+    public List<SerieResponse> favorites(final Long idUser) {
+        final Optional<List<FavoriteEntity>> favorites = favoriteRepository.findByIdUser(idUser);
+
+        return favorites.orElse(new ArrayList<>())
+            .stream()
+            .filter(favorite -> favorite.getIdSerie() != null)
+            .map(favorite -> findById(favorite.getIdSerie()))
+            .collect(Collectors.toList());
     }
 
 }
