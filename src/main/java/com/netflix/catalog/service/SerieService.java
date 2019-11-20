@@ -1,8 +1,10 @@
 package com.netflix.catalog.service;
 
 import com.netflix.catalog.converter.FavoriteConverter;
+import com.netflix.catalog.converter.LikeConverter;
 import com.netflix.catalog.converter.SerieConverter;
 import com.netflix.catalog.dto.SerieFavoriteRequest;
+import com.netflix.catalog.dto.SerieLikeRequest;
 import com.netflix.catalog.dto.SerieRequest;
 import com.netflix.catalog.dto.SerieResponse;
 import com.netflix.catalog.dto.SerieWatchResponse;
@@ -10,10 +12,12 @@ import com.netflix.catalog.dto.SerieWatchedByCategoryResponse;
 import com.netflix.catalog.dto.SerieWatchedRequest;
 import com.netflix.catalog.dto.SerieWatchedResponse;
 import com.netflix.catalog.entity.FavoriteEntity;
+import com.netflix.catalog.entity.LikeEntity;
 import com.netflix.catalog.entity.SerieEntity;
 import com.netflix.catalog.entity.SerieWatchedEntity;
 import com.netflix.catalog.exception.CatalogException;
 import com.netflix.catalog.repository.FavoriteRepository;
+import com.netflix.catalog.repository.LikeRepository;
 import com.netflix.catalog.repository.SerieRepository;
 import com.netflix.catalog.repository.SerieWatchedRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +57,12 @@ public class SerieService {
 
     @Autowired
     private FavoriteConverter favoriteConverter;
+
+    @Autowired
+    private LikeConverter likeConverter;
+
+    @Autowired
+    private LikeRepository likeRepository;
 
     private void verifySerieName(final String name) {
         serieRepository.findByName(name)
@@ -134,7 +144,7 @@ public class SerieService {
         return serieRepository.topSerieWatchedByCategory();
     }
 
-    public void sendToFavorites(final SerieFavoriteRequest serieFavoriteRequest) {
+    public void favoriteSerie(final SerieFavoriteRequest serieFavoriteRequest) {
         final FavoriteEntity favoriteEntity = favoriteConverter.serieToFavoriteEntity(serieFavoriteRequest);
         findById(favoriteEntity.getIdSerie());
         favoriteRepository.save(favoriteEntity);
@@ -147,6 +157,22 @@ public class SerieService {
             .stream()
             .filter(favorite -> favorite.getIdSerie() != null)
             .map(favorite -> findById(favorite.getIdSerie()))
+            .collect(Collectors.toList());
+    }
+
+    public void like(final SerieLikeRequest serieLikeRequest) {
+        final LikeEntity likeEntity = likeConverter.serieToLikeEntity(serieLikeRequest);
+        findById(likeEntity.getIdSerie());
+        likeRepository.save(likeEntity);
+    }
+
+    public List<SerieResponse> likes(final Long idUser) {
+        final Optional<List<LikeEntity>> likes = likeRepository.findByIdUser(idUser);
+
+        return likes.orElse(new ArrayList<>())
+            .stream()
+            .filter(like -> like.getIdSerie() != null)
+            .map(like -> findById(like.getIdSerie()))
             .collect(Collectors.toList());
     }
 

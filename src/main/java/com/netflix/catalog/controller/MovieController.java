@@ -1,6 +1,7 @@
 package com.netflix.catalog.controller;
 
 import com.netflix.catalog.dto.MovieFavoriteRequest;
+import com.netflix.catalog.dto.MovieLikeRequest;
 import com.netflix.catalog.dto.MovieRequest;
 import com.netflix.catalog.dto.MovieResponse;
 import com.netflix.catalog.dto.MovieWatchedByCategoryResponse;
@@ -74,14 +75,25 @@ public class MovieController {
     }
 
     @PostMapping("/favorites")
-    public ResponseEntity sendToFavorites(@Valid @RequestBody final MovieFavoriteRequest movieFavoriteRequest) {
-        movieService.sendToFavorites(movieFavoriteRequest);
-        return ResponseEntity.created(URI.create("/favorites")).build();
+    public ResponseEntity favoriteMovie(@Valid @RequestBody final MovieFavoriteRequest movieFavoriteRequest) {
+        movieService.favoriteMovie(movieFavoriteRequest);
+        return ResponseEntity.created(URI.create("/user/" + movieFavoriteRequest.getIdUser() + "/favorites")).build();
     }
 
     @GetMapping("/user/{idUser}/favorites")
     public ResponseEntity<List<MovieResponse>> favorites(@PathVariable final Long idUser) {
         return ResponseEntity.ok(movieService.favorites(idUser));
+    }
+
+    @PostMapping("/like")
+    public ResponseEntity likeMovie(@Valid @RequestBody final MovieLikeRequest movieLikeRequest) {
+        movieService.like(movieLikeRequest);
+        return ResponseEntity.created(URI.create("/likes")).build();
+    }
+
+    @GetMapping("/user/{idUser}/likes")
+    public ResponseEntity<List<MovieResponse>> likes(@PathVariable final Long idUser) {
+        return ResponseEntity.ok(movieService.likes(idUser));
     }
 
 }

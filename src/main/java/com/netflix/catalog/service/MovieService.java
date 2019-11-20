@@ -1,8 +1,10 @@
 package com.netflix.catalog.service;
 
 import com.netflix.catalog.converter.FavoriteConverter;
+import com.netflix.catalog.converter.LikeConverter;
 import com.netflix.catalog.converter.MovieConverter;
 import com.netflix.catalog.dto.MovieFavoriteRequest;
+import com.netflix.catalog.dto.MovieLikeRequest;
 import com.netflix.catalog.dto.MovieRequest;
 import com.netflix.catalog.dto.MovieResponse;
 import com.netflix.catalog.dto.MovieWatchResponse;
@@ -10,10 +12,12 @@ import com.netflix.catalog.dto.MovieWatchedByCategoryResponse;
 import com.netflix.catalog.dto.MovieWatchedRequest;
 import com.netflix.catalog.dto.MovieWatchedResponse;
 import com.netflix.catalog.entity.FavoriteEntity;
+import com.netflix.catalog.entity.LikeEntity;
 import com.netflix.catalog.entity.MovieEntity;
 import com.netflix.catalog.entity.MovieWatchedEntity;
 import com.netflix.catalog.exception.CatalogException;
 import com.netflix.catalog.repository.FavoriteRepository;
+import com.netflix.catalog.repository.LikeRepository;
 import com.netflix.catalog.repository.MovieRepository;
 import com.netflix.catalog.repository.MovieWatchedRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +57,12 @@ public class MovieService {
 
     @Autowired
     private FavoriteConverter favoriteConverter;
+
+    @Autowired
+    private LikeConverter likeConverter;
+
+    @Autowired
+    private LikeRepository likeRepository;
 
     private void verifyMovieName(final String name) {
         movieRepository.findByName(name)
@@ -136,7 +146,7 @@ public class MovieService {
         return movieRepository.topMovieWatchedByCategory();
     }
 
-    public void sendToFavorites(final MovieFavoriteRequest movieFavoriteRequest) {
+    public void favoriteMovie(final MovieFavoriteRequest movieFavoriteRequest) {
         final FavoriteEntity favoriteEntity = favoriteConverter.movieToFavoriteEntity(movieFavoriteRequest);
         findById(favoriteEntity.getIdMovie());
         favoriteRepository.save(favoriteEntity);
@@ -149,6 +159,22 @@ public class MovieService {
             .stream()
             .filter(favorite -> favorite.getIdMovie() != null)
             .map(favorite -> findById(favorite.getIdMovie()))
+            .collect(Collectors.toList());
+    }
+
+    public void like(final MovieLikeRequest movieLikeRequest) {
+        final LikeEntity likeEntity = likeConverter.movieToLikeEntity(movieLikeRequest);
+        findById(likeEntity.getIdMovie());
+        likeRepository.save(likeEntity);
+    }
+
+    public List<MovieResponse> likes(final Long idUser) {
+        final Optional<List<LikeEntity>> likes = likeRepository.findByIdUser(idUser);
+
+        return likes.orElse(new ArrayList<>())
+            .stream()
+            .filter(like -> like.getIdMovie() != null)
+            .map(like -> findById(like.getIdMovie()))
             .collect(Collectors.toList());
     }
 

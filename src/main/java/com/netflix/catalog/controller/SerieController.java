@@ -1,6 +1,7 @@
 package com.netflix.catalog.controller;
 
 import com.netflix.catalog.dto.SerieFavoriteRequest;
+import com.netflix.catalog.dto.SerieLikeRequest;
 import com.netflix.catalog.dto.SerieRequest;
 import com.netflix.catalog.dto.SerieResponse;
 import com.netflix.catalog.dto.SerieWatchedByCategoryResponse;
@@ -74,14 +75,25 @@ public class SerieController {
     }
 
     @PostMapping("/favorites")
-    public ResponseEntity sendToFavorites(@Valid @RequestBody final SerieFavoriteRequest serieFavoriteRequest) {
-        serieService.sendToFavorites(serieFavoriteRequest);
-        return ResponseEntity.created(URI.create("/favorites")).build();
+    public ResponseEntity favoriteSerie(@Valid @RequestBody final SerieFavoriteRequest serieFavoriteRequest) {
+        serieService.favoriteSerie(serieFavoriteRequest);
+        return ResponseEntity.created(URI.create("/user/" + serieFavoriteRequest.getIdUser() + "/favorites")).build();
     }
 
     @GetMapping("/user/{idUser}/favorites")
     public ResponseEntity<List<SerieResponse>> favorites(@PathVariable final Long idUser) {
         return ResponseEntity.ok(serieService.favorites(idUser));
+    }
+
+    @PostMapping("/like")
+    public ResponseEntity likeSerie(@Valid @RequestBody final SerieLikeRequest serieLikeRequest) {
+        serieService.like(serieLikeRequest);
+        return ResponseEntity.created(URI.create("/likes")).build();
+    }
+
+    @GetMapping("/user/{idUser}/likes")
+    public ResponseEntity<List<SerieResponse>> likes(@PathVariable final Long idUser) {
+        return ResponseEntity.ok(serieService.likes(idUser));
     }
 
 }
