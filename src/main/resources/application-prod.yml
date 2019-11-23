@@ -1,7 +1,7 @@
 spring:
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://netflix-mysql:3306/netflix-help-desk
+    url: jdbc:mysql://netflix-mysql:3306/netflix-catalog
     username: root
     password: root
   zipkin:
